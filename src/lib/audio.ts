@@ -223,7 +223,7 @@ const players: Record<SoundCue, (options?: PlayOptions) => unknown> = {
   miss,
 };
 
-const BACKGROUND_MUSIC_SRC = "/media/Miitopia%20OST%20-%20%20Catalog.mp3";
+const BACKGROUND_MUSIC_SRC = "/media/Miitopia%20OST%20-%20Catalog.mp3";
 const BACKGROUND_MUSIC_VOLUME = 0.32;
 
 let backgroundMusic: HTMLAudioElement | null = null;
