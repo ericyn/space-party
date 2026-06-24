@@ -17,7 +17,6 @@ import {
   BackIcon,
   BubbleIcon,
   CameraIcon,
-  CheckIcon,
   FruitIcon,
   HandIcon,
   MouthIcon,
@@ -49,6 +48,240 @@ import type {
 } from "./types";
 
 const FACE_WARM_VIEWS = new Set<AppView>(["instructions", "playing"]);
+const RESULT_CONTENT_VARIANTS = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.075,
+      delayChildren: 0.08,
+    },
+  },
+};
+const RESULT_ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 12, filter: "blur(3px)" },
+  show: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.28,
+      ease: [0.22, 1, 0.36, 1] as const,
+    },
+  },
+};
+const RESULT_CONFETTI = [
+  {
+    x: -280,
+    y: -86,
+    rotate: -140,
+    delay: 0,
+    width: 12,
+    height: 6,
+    color: "var(--pink-main)",
+  },
+  {
+    x: -228,
+    y: -146,
+    rotate: 112,
+    delay: 0.02,
+    width: 9,
+    height: 9,
+    color: "oklch(0.817 0.14 80.096)",
+    round: true,
+  },
+  {
+    x: -172,
+    y: -106,
+    rotate: -78,
+    delay: 0.05,
+    width: 14,
+    height: 6,
+    color: "oklch(0.639 0.133 252.308)",
+  },
+  {
+    x: -126,
+    y: -172,
+    rotate: 166,
+    delay: 0.08,
+    width: 11,
+    height: 5,
+    color: "oklch(0.205 0 0)",
+  },
+  {
+    x: -72,
+    y: -124,
+    rotate: -114,
+    delay: 0.03,
+    width: 10,
+    height: 10,
+    color: "var(--pink-lighter)",
+    round: true,
+  },
+  {
+    x: -34,
+    y: -188,
+    rotate: 66,
+    delay: 0.06,
+    width: 16,
+    height: 6,
+    color: "oklch(0.681 0.123 221.269)",
+  },
+  {
+    x: 28,
+    y: -154,
+    rotate: -34,
+    delay: 0.01,
+    width: 12,
+    height: 6,
+    color: "var(--pink-main)",
+  },
+  {
+    x: 82,
+    y: -204,
+    rotate: 142,
+    delay: 0.09,
+    width: 9,
+    height: 9,
+    color: "oklch(0.817 0.14 80.096)",
+    round: true,
+  },
+  {
+    x: 138,
+    y: -132,
+    rotate: -92,
+    delay: 0.04,
+    width: 15,
+    height: 6,
+    color: "oklch(0.639 0.133 252.308)",
+  },
+  {
+    x: 194,
+    y: -176,
+    rotate: 84,
+    delay: 0.07,
+    width: 12,
+    height: 5,
+    color: "oklch(0.205 0 0)",
+  },
+  {
+    x: 250,
+    y: -98,
+    rotate: -156,
+    delay: 0.03,
+    width: 10,
+    height: 10,
+    color: "var(--pink-light)",
+    round: true,
+  },
+  {
+    x: 302,
+    y: -38,
+    rotate: 124,
+    delay: 0.1,
+    width: 15,
+    height: 6,
+    color: "oklch(0.681 0.123 221.269)",
+  },
+  {
+    x: -314,
+    y: 4,
+    rotate: 82,
+    delay: 0.06,
+    width: 13,
+    height: 6,
+    color: "oklch(0.639 0.133 252.308)",
+  },
+  {
+    x: -246,
+    y: 68,
+    rotate: -118,
+    delay: 0.1,
+    width: 10,
+    height: 10,
+    color: "var(--pink-light)",
+    round: true,
+  },
+  {
+    x: -184,
+    y: 30,
+    rotate: 148,
+    delay: 0.12,
+    width: 14,
+    height: 5,
+    color: "oklch(0.817 0.14 80.096)",
+  },
+  {
+    x: -118,
+    y: 102,
+    rotate: -72,
+    delay: 0.14,
+    width: 11,
+    height: 6,
+    color: "oklch(0.205 0 0)",
+  },
+  {
+    x: -48,
+    y: 56,
+    rotate: 96,
+    delay: 0.11,
+    width: 9,
+    height: 9,
+    color: "var(--pink-main)",
+    round: true,
+  },
+  {
+    x: 56,
+    y: 84,
+    rotate: -126,
+    delay: 0.13,
+    width: 14,
+    height: 6,
+    color: "oklch(0.639 0.133 252.308)",
+  },
+  {
+    x: 124,
+    y: 44,
+    rotate: 68,
+    delay: 0.09,
+    width: 10,
+    height: 10,
+    color: "oklch(0.817 0.14 80.096)",
+    round: true,
+  },
+  {
+    x: 196,
+    y: 104,
+    rotate: -104,
+    delay: 0.15,
+    width: 15,
+    height: 6,
+    color: "var(--pink-lighter)",
+  },
+  {
+    x: 266,
+    y: 42,
+    rotate: 152,
+    delay: 0.12,
+    width: 12,
+    height: 5,
+    color: "oklch(0.681 0.123 221.269)",
+  },
+  {
+    x: 318,
+    y: 92,
+    rotate: -72,
+    delay: 0.16,
+    width: 10,
+    height: 10,
+    color: "var(--pink-main)",
+    round: true,
+  },
+] as const;
+
+function getDigitStagger(index: number, total: number) {
+  if (total < 2 || index < total - 2) return undefined;
+  return index - (total - 2) + 1;
+}
 
 type WelcomeStep = "start" | "camera";
 
@@ -451,6 +684,7 @@ export default function App() {
 
   const finishGame = useCallback(
     (nextResult: GameResult) => {
+      playSound(data.settings.soundEnabled, "success");
       setResult(nextResult);
       setPersonalBest(
         nextResult.score > (data.bestScores[nextResult.gameId] ?? 0),
@@ -459,7 +693,7 @@ export default function App() {
       setTrackerMode("hand");
       setView("results");
     },
-    [data.bestScores],
+    [data.bestScores, data.settings.soundEnabled],
   );
 
   const returnToHub = useCallback(() => {
@@ -579,22 +813,6 @@ export default function App() {
       <div className="ambient-shape ambient-shape--one" />
       <div className="ambient-shape ambient-shape--two" />
 
-      {showShell ? (
-        <button
-          className="app-logo"
-          type="button"
-          onClick={returnToHub}
-          disabled={cameraFlying}
-          aria-label="Go to the game room"
-        >
-          <img src="/media/space95-logo.webp" alt="Space 95" />
-        </button>
-      ) : (
-        <div className="app-logo" aria-label="Space 95">
-          <img src="/media/space95-logo.webp" alt="Space 95" />
-        </div>
-      )}
-
       {showHeader ? (
         <header className="app-header">
           <div className="header-actions">
@@ -626,6 +844,29 @@ export default function App() {
             className="camera-dock-target"
             aria-hidden="true"
           />
+          {view === "results" && !shouldReduceMotion ? (
+            <div className="result-confetti" aria-hidden="true">
+              {RESULT_CONFETTI.map((piece, index) => (
+                <span
+                  key={index}
+                  className={`result-confetti__piece ${
+                    "round" in piece ? "result-confetti__piece--round" : ""
+                  }`}
+                  style={
+                    {
+                      "--confetti-x": `${piece.x}px`,
+                      "--confetti-y": `${piece.y}px`,
+                      "--confetti-rotate": `${piece.rotate}deg`,
+                      "--confetti-delay": `${piece.delay}s`,
+                      "--confetti-width": `${piece.width}px`,
+                      "--confetti-height": `${piece.height}px`,
+                      "--confetti-color": piece.color,
+                    } as CSSProperties
+                  }
+                />
+              ))}
+            </div>
+          ) : null}
           <CameraPreview
             containerRef={cameraPreviewRef}
             videoRef={camera.videoRef}
@@ -922,17 +1163,51 @@ export default function App() {
         ) : null}
 
         {view === "results" && result ? (
-          <section className="center-screen results-screen">
-            <div className="result-stamp">
-              <CheckIcon />
-            </div>
-            <div className="eyebrow">Round complete</div>
-            <h1>{personalBest ? "A new personal best!" : "Nicely played!"}</h1>
-            <div className="result-score">
+          <motion.section
+            key={`${result.gameId}-${result.score}-${result.detail}`}
+            className="center-screen results-screen"
+            variants={shouldReduceMotion ? undefined : RESULT_CONTENT_VARIANTS}
+            initial={shouldReduceMotion ? false : "hidden"}
+            animate={shouldReduceMotion ? undefined : "show"}
+          >
+            <motion.div
+              className="eyebrow"
+              variants={shouldReduceMotion ? undefined : RESULT_ITEM_VARIANTS}
+            >
+              Round complete
+            </motion.div>
+            <motion.h1
+              variants={shouldReduceMotion ? undefined : RESULT_ITEM_VARIANTS}
+            >
+              {personalBest ? "A new personal best!" : "Nicely played!"}
+            </motion.h1>
+            <motion.div
+              className="result-score"
+              variants={shouldReduceMotion ? undefined : RESULT_ITEM_VARIANTS}
+            >
               <span>Score</span>
-              <strong>{result.score}</strong>
-            </div>
-            <div className="result-details">
+              <strong
+                className="result-score-value t-digit-group is-animating"
+                aria-label={`${result.score}`}
+              >
+                {String(result.score)
+                  .split("")
+                  .map((digit, index, digits) => (
+                    <span
+                      key={`${digit}-${index}`}
+                      className="t-digit"
+                      data-stagger={getDigitStagger(index, digits.length)}
+                      aria-hidden="true"
+                    >
+                      {digit}
+                    </span>
+                  ))}
+              </strong>
+            </motion.div>
+            <motion.div
+              className="result-details"
+              variants={shouldReduceMotion ? undefined : RESULT_ITEM_VARIANTS}
+            >
               <div>
                 <strong>{result.accuracy}%</strong>
                 <span>Accuracy</span>
@@ -941,8 +1216,11 @@ export default function App() {
                 <strong>{result.detail}</strong>
                 <span>Round result</span>
               </div>
-            </div>
-            <div className="result-actions">
+            </motion.div>
+            <motion.div
+              className="result-actions"
+              variants={shouldReduceMotion ? undefined : RESULT_ITEM_VARIANTS}
+            >
               <button
                 className="primary-button"
                 onClick={() => setView("instructions")}
@@ -952,8 +1230,8 @@ export default function App() {
               <button className="secondary-button" onClick={returnToHub}>
                 Choose another game
               </button>
-            </div>
-          </section>
+            </motion.div>
+          </motion.section>
         ) : null}
       </main>
     </div>
