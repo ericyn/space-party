@@ -478,10 +478,18 @@ export default function App() {
     if (view !== "playing" || countdown === null) return;
     const timer = window.setTimeout(
       () => setCountdown((value) => (value && value > 1 ? value - 1 : null)),
-      850,
+      1000,
     );
     return () => window.clearTimeout(timer);
   }, [countdown, view]);
+
+  useEffect(() => {
+    if (view !== "playing" || countdown === null) return;
+    playSound(
+      data.settings.soundEnabled,
+      countdown > 1 ? "countdown-tick" : "countdown-start",
+    );
+  }, [countdown, data.settings.soundEnabled, view]);
 
   useEffect(() => {
     if (view === "hub" && !cameraFlying) setTrackerMode("hand");
@@ -659,7 +667,7 @@ export default function App() {
     playSound(data.settings.soundEnabled, "ui-confirm");
     setResult(null);
     setTrackerMode(game.tracker);
-    setCountdown(3);
+    setCountdown(5);
     setCameraFlightRect(
       rect && view === "instructions" && !shouldReduceMotion
         ? {
@@ -1089,8 +1097,17 @@ export default function App() {
             </button>
             {countdown !== null ? (
               <div className="countdown" role="status" aria-live="assertive">
-                <span>Get ready</span>
-                <strong>{countdown}</strong>
+                <span className="countdown__eyebrow">Get ready</span>
+                <strong
+                  key={countdown}
+                  className="countdown__number t-digit-group is-animating"
+                  aria-label={`${countdown}`}
+                >
+                  <span className="t-digit" aria-hidden="true">
+                    {countdown}
+                  </span>
+                </strong>
+                <p className="countdown__copy">{game.instruction}</p>
               </div>
             ) : (
               <>

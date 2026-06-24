@@ -65,9 +65,9 @@ export const GAMES: GameModule[] = [
     shortTitle: "Draw",
     description: "Pinch your fingers to paint in the air with shifting colors.",
     instruction:
-      "Pinch your thumb and index finger to draw. Open your hand to lift the pen.",
+      "Pinch your thumb and index finger to draw. Open your hand to lift the pen. Hover or tap a color card to change color.",
     tracker: "hand",
-    durationLabel: "60 second canvas",
+    durationLabel: "Free draw canvas",
     accent: "oklch(0.746 0.263 328.069)",
   },
   {

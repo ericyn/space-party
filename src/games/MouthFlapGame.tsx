@@ -115,7 +115,7 @@ export function MouthFlapGame({
     const draw = (now: number) => {
       const { width, height } = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "oklch(0.971 0.011 225.979)";
+      ctx.fillStyle = "oklch(0.977 0 0)";
       ctx.fillRect(0, 0, width, height);
 
       for (const gate of gates) {

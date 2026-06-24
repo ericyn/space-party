@@ -54,15 +54,20 @@ const SNAP_BACK_MS = 620;
 function makePieces(count: 4 | 6 | 8): Piece[] {
   return Array.from({ length: count }, (_, index) => {
     const rows = count <= 4 ? 2 : count <= 6 ? 3 : 4;
-    const y = 0.22 + (index % rows) * (0.58 / Math.max(rows - 1, 1));
-    const columnOffset = index >= rows ? 0.12 : 0;
+    const row = index % rows;
+    const column = Math.floor(index / rows);
+    const yStart = count <= 4 ? 0.26 : count <= 6 ? 0.2 : 0.17;
+    const yEnd = count <= 4 ? 0.74 : count <= 6 ? 0.8 : 0.83;
+    const y = yStart + row * ((yEnd - yStart) / Math.max(rows - 1, 1));
+    const originX = column === 0 ? 0.18 : 0.4;
+    const targetX = column === 0 ? 0.62 : 0.82;
     return {
       id: index,
       shape: SHAPES[index % SHAPES.length],
       color: COLORS[index],
-      origin: { x: 0.18 + columnOffset, y },
-      target: { x: 0.7 + columnOffset, y },
-      position: { x: 0.18 + columnOffset, y },
+      origin: { x: originX, y },
+      target: { x: targetX, y },
+      position: { x: originX, y },
       placed: false,
       placedAt: null,
       snapBack: null,
@@ -200,7 +205,7 @@ export function PuzzleGame({
     const draw = (now: number) => {
       const { width, height } = canvas.getBoundingClientRect();
       context.clearRect(0, 0, width, height);
-      context.fillStyle = "oklch(1 0 0)";
+      context.fillStyle = "oklch(0.977 0 0)";
       context.fillRect(0, 0, width, height);
       const size =
         Math.min(width, height) *

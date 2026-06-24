@@ -262,7 +262,7 @@ export function FruitSlicerGame({
     const draw = (now: number) => {
       const { width, height } = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = "oklch(0.985 0.004 91.446)";
+      ctx.fillStyle = "oklch(0.977 0 0)";
       ctx.fillRect(0, 0, width, height);
 
       for (const fruit of fruits) drawFruit(fruit, width, height);

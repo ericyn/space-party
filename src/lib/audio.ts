@@ -10,6 +10,8 @@ export type SoundCue =
   | "ui-select"
   | "ui-confirm"
   | "card-hover"
+  | "countdown-tick"
+  | "countdown-start"
   | "bubble-pop"
   | "bonus-pop"
   | "puzzle-grab"
@@ -58,6 +60,49 @@ const cardHover = defineSound({
     },
   ],
 });
+
+const countdownTick = defineSound({
+  layers: [
+    {
+      source: { type: "triangle", frequency: { start: 620, end: 760 } },
+      envelope: { attack: 0.002, decay: 0.08 },
+      gain: 0.12,
+      filter: { type: "lowpass", frequency: 1800, resonance: 0.15 },
+    },
+    {
+      source: { type: "sine", frequency: 1240 },
+      envelope: { attack: 0.001, decay: 0.04 },
+      gain: 0.035,
+    },
+  ],
+});
+
+const countdownStart = defineSequence([
+  {
+    sound: {
+      source: { type: "triangle", frequency: 660 },
+      envelope: { attack: 0.002, decay: 0.1 },
+      gain: 0.13,
+    },
+    at: 0,
+  },
+  {
+    sound: {
+      source: { type: "sine", frequency: 990 },
+      envelope: { attack: 0.002, decay: 0.16 },
+      gain: 0.12,
+    },
+    at: 0.06,
+  },
+  {
+    sound: {
+      source: { type: "sine", frequency: 1320 },
+      envelope: { attack: 0.002, decay: 0.2 },
+      gain: 0.09,
+    },
+    at: 0.13,
+  },
+]);
 
 const bubblePop = defineSound({
   layers: [
@@ -167,6 +212,8 @@ const players: Record<SoundCue, (options?: PlayOptions) => unknown> = {
   "ui-select": uiSelect,
   "ui-confirm": uiConfirm,
   "card-hover": cardHover,
+  "countdown-tick": countdownTick,
+  "countdown-start": countdownStart,
   "bubble-pop": bubblePop,
   "bonus-pop": bonusPop,
   "puzzle-grab": puzzleGrab,
