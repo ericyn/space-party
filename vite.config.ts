@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   preview: {
+    allowedHosts: ['party.ibuildnothing.com'],
     headers: {
       'Permissions-Policy': 'camera=(self)',
     },
