@@ -2,6 +2,31 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type CameraState = "idle" | "requesting" | "ready" | "error";
 
+function cameraConstraints(requestedDeviceId: string): MediaStreamConstraints[] {
+  const preferredVideo: MediaTrackConstraints = {
+    width: { ideal: 1280 },
+    height: { ideal: 720 },
+    frameRate: { ideal: 30 },
+  };
+
+  return [
+    ...(requestedDeviceId
+      ? [
+          {
+            audio: false,
+            video: {
+              ...preferredVideo,
+              deviceId: { exact: requestedDeviceId },
+            },
+          } satisfies MediaStreamConstraints,
+        ]
+      : []),
+    { audio: false, video: preferredVideo },
+    { audio: false, video: { facingMode: "user" } },
+    { audio: false, video: true },
+  ];
+}
+
 function cameraMessage(error: unknown): string {
   if (!(error instanceof DOMException))
     return "The camera could not be started. Try another camera.";
@@ -51,17 +76,18 @@ export function useCamera(
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
       try {
-        const nextStream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            deviceId: requestedDeviceId
-              ? { exact: requestedDeviceId }
-              : undefined,
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-            frameRate: { ideal: 30, max: 30 },
-          },
-        });
+        let nextStream: MediaStream | null = null;
+        let lastError: unknown = null;
+        for (const constraints of cameraConstraints(requestedDeviceId)) {
+          try {
+            nextStream =
+              await navigator.mediaDevices.getUserMedia(constraints);
+            break;
+          } catch (reason) {
+            lastError = reason;
+          }
+        }
+        if (!nextStream) throw lastError;
         if (token !== startToken.current) {
           nextStream.getTracks().forEach((track) => track.stop());
           return false;
@@ -72,9 +98,12 @@ export function useCamera(
           nextStream.getVideoTracks()[0]?.getSettings().deviceId ??
           requestedDeviceId;
         onDeviceChange(activeDeviceId);
-        const available = (
-          await navigator.mediaDevices.enumerateDevices()
-        ).filter((device) => device.kind === "videoinput");
+        const available = await navigator.mediaDevices
+          .enumerateDevices()
+          .then((devices) =>
+            devices.filter((device) => device.kind === "videoinput"),
+          )
+          .catch(() => []);
         if (token !== startToken.current) return false;
         setDevices(available);
         setState("ready");

@@ -7,6 +7,44 @@ import type {
   VisionWorkerOutMessage,
 } from "../types";
 
+const FRAME_WIDTH = 640;
+const FRAME_HEIGHT = 360;
+
+async function captureVideoFrame(
+  video: HTMLVideoElement,
+  fallbackCanvasRef: { current: HTMLCanvasElement | null },
+): Promise<ImageBitmap> {
+  if (typeof createImageBitmap !== "function") {
+    throw new Error("This browser cannot capture camera frames for tracking.");
+  }
+
+  try {
+    return await createImageBitmap(video, {
+      resizeWidth: FRAME_WIDTH,
+      resizeHeight: FRAME_HEIGHT,
+      resizeQuality: "low",
+    });
+  } catch {
+    const canvas =
+      fallbackCanvasRef.current ?? document.createElement("canvas");
+    fallbackCanvasRef.current = canvas;
+    if (canvas.width !== FRAME_WIDTH) canvas.width = FRAME_WIDTH;
+    if (canvas.height !== FRAME_HEIGHT) canvas.height = FRAME_HEIGHT;
+    const context = canvas.getContext("2d");
+    if (context) {
+      context.drawImage(video, 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+      try {
+        return await createImageBitmap(canvas);
+      } catch {
+        // Fall through to a full-size capture for browsers that support video
+        // sources but not canvas sources in createImageBitmap.
+      }
+    }
+
+    return createImageBitmap(video);
+  }
+}
+
 export function useVisionTracking(
   videoRef: React.RefObject<HTMLVideoElement | null>,
   stream: MediaStream | null,
@@ -21,6 +59,7 @@ export function useVisionTracking(
   const qualityRef = useRef<TrackingQuality>("loading");
   const [fps, setFps] = useState(0);
   const [error, setError] = useState("");
+  const fallbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const fpsCounter = useRef({ count: 0, started: performance.now() });
 
   useEffect(() => {
@@ -102,11 +141,7 @@ export function useVisionTracking(
         framePending.current = true;
         lastSubmitted = now;
         try {
-          const bitmap = await createImageBitmap(video, {
-            resizeWidth: 640,
-            resizeHeight: 360,
-            resizeQuality: "low",
-          });
+          const bitmap = await captureVideoFrame(video, fallbackCanvasRef);
           if (cancelled || modeRef.current === "off") {
             bitmap.close();
             framePending.current = false;

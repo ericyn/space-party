@@ -33,6 +33,7 @@ const TWO_FINGER_SCROLL_MULTIPLIER = 1.12;
 const SCROLL_SMOOTHING = 0.34;
 const TAP_COOLDOWN_MS = 650;
 const DRAG_TAP_LOCKOUT_MS = 260;
+const PALM_CONFIRM_SCORE = 0.58;
 
 function midpoint(a: Point, b: Point): Point {
   return {
@@ -50,7 +51,7 @@ export function useHubHandCarousel({
 }: HubHandCarouselOptions): HubHandCarouselState {
   const [state, setState] = useState<HubHandCarouselState>(EMPTY_STATE);
   const dragRef = useRef<DragState | null>(null);
-  const lastTapRef = useRef(false);
+  const lastPalmPushRef = useRef(false);
   const lastSelectAtRef = useRef(0);
   const lastDragEndAtRef = useRef(0);
   const scrollTargetRef = useRef<number | null>(null);
@@ -59,7 +60,7 @@ export function useHubHandCarousel({
   useEffect(() => {
     if (!active) {
       dragRef.current = null;
-      lastTapRef.current = false;
+      lastPalmPushRef.current = false;
       scrollTargetRef.current = null;
       lastPublishedRef.current = EMPTY_STATE;
       setState(EMPTY_STATE);
@@ -86,7 +87,7 @@ export function useHubHandCarousel({
 
     const reset = () => {
       dragRef.current = null;
-      lastTapRef.current = false;
+      lastPalmPushRef.current = false;
       scrollTargetRef.current = null;
       publish(EMPTY_STATE);
     };
@@ -94,6 +95,7 @@ export function useHubHandCarousel({
     const tick = (now: number) => {
       const frame = tracking.current;
       const hand = frame?.mode === "hand" ? frame.hand : null;
+      const palm = frame?.mode === "hand" ? frame.hands[0]?.point : null;
 
       if (!hand) {
         reset();
@@ -101,9 +103,17 @@ export function useHubHandCarousel({
         return;
       }
 
+      const openPalm =
+        hand.gesture === "Open_Palm" &&
+        hand.gestureScore >= PALM_CONFIRM_SCORE &&
+        !hand.pinch &&
+        !hand.twoFinger;
+      const palmPush = openPalm && hand.tap;
       const aim = hand.twoFinger
         ? midpoint(hand.index, hand.middle)
-        : hand.index;
+        : openPalm && palm
+          ? palm
+          : hand.index;
       const point = viewportPointFromAim(aim, {
         width: window.innerWidth,
         height: window.innerHeight,
@@ -143,7 +153,7 @@ export function useHubHandCarousel({
             ? scrollTarget
             : easedScroll;
         publish({ point, targetId: null, dragging: true });
-        lastTapRef.current = hand.tap;
+        lastPalmPushRef.current = false;
         if (!cancelled) animationFrame = requestAnimationFrame(tick);
         return;
       }
@@ -186,13 +196,13 @@ export function useHubHandCarousel({
 
       publish({ point, targetId, dragging: false });
 
-      if (hand.tap && !lastTapRef.current && targetId && !tapBlocked) {
+      if (palmPush && !lastPalmPushRef.current && targetId && !tapBlocked) {
         lastSelectAtRef.current = now;
         onSelect(targetId);
         return;
       }
 
-      lastTapRef.current = hand.tap;
+      lastPalmPushRef.current = palmPush;
       if (!cancelled) animationFrame = requestAnimationFrame(tick);
     };
 

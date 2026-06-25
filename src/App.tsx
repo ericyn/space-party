@@ -433,14 +433,18 @@ export default function App() {
   >({});
   const shouldReduceMotion =
     data.settings.reducedMotion || Boolean(systemReducedMotion);
+  const isCountdownActive = view === "instructions" && countdown !== null;
 
   useEffect(() => {
     saveStoredData(data);
   }, [data]);
 
   useEffect(() => {
-    syncBackgroundMusic(data.settings.soundEnabled, view !== "playing");
-  }, [data.settings.soundEnabled, view]);
+    syncBackgroundMusic(
+      data.settings.soundEnabled,
+      view !== "playing" && !isCountdownActive,
+    );
+  }, [data.settings.soundEnabled, isCountdownActive, view]);
 
   const updateCameraId = useCallback((cameraDeviceId: string) => {
     setData((current) => ({
@@ -475,21 +479,26 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (view !== "playing" || countdown === null) return;
-    const timer = window.setTimeout(
-      () => setCountdown((value) => (value && value > 1 ? value - 1 : null)),
-      1000,
-    );
+    if (!isCountdownActive || documentPaused) return;
+    const timer = window.setTimeout(() => {
+      if (countdown > 1) {
+        setCountdown(countdown - 1);
+        return;
+      }
+
+      setCountdown(null);
+      setView("playing");
+    }, 1000);
     return () => window.clearTimeout(timer);
-  }, [countdown, view]);
+  }, [countdown, documentPaused, isCountdownActive]);
 
   useEffect(() => {
-    if (view !== "playing" || countdown === null) return;
+    if (!isCountdownActive || documentPaused) return;
     playSound(
       data.settings.soundEnabled,
       countdown > 1 ? "countdown-tick" : "countdown-start",
     );
-  }, [countdown, data.settings.soundEnabled, view]);
+  }, [countdown, data.settings.soundEnabled, documentPaused, isCountdownActive]);
 
   useEffect(() => {
     if (view === "hub" && !cameraFlying) setTrackerMode("hand");
@@ -620,12 +629,16 @@ export default function App() {
     (id: GameId, tone: "select" | "confirm" = "select") => {
       const selected = getGame(id);
       const rect = cameraPreviewRef.current?.getBoundingClientRect();
+      void prepareAudio(data.settings.soundEnabled);
+      syncBackgroundMusic(data.settings.soundEnabled, false);
       playSound(
         data.settings.soundEnabled,
         tone === "confirm" ? "ui-confirm" : "ui-select",
       );
       setSelectedGame(id);
+      setResult(null);
       setTrackerMode(selected.tracker);
+      setCountdown(5);
       setCameraFlightRect(
         rect && view === "hub" && !shouldReduceMotion
           ? {
@@ -641,9 +654,12 @@ export default function App() {
     [data.settings.soundEnabled, shouldReduceMotion, view],
   );
 
-  const chooseGame = useCallback((id: GameId) => {
-    openInstructions(id);
-  }, [openInstructions]);
+  const chooseGame = useCallback(
+    (id: GameId) => {
+      openInstructions(id, "confirm");
+    },
+    [openInstructions],
+  );
 
   const previewHubGame = useCallback(
     (id: GameId) => {
@@ -660,34 +676,11 @@ export default function App() {
     lastHubPreviewSoundRef.current = null;
   }, []);
 
-  const startGame = useCallback(() => {
-    const rect = cameraPreviewRef.current?.getBoundingClientRect();
-    void prepareAudio(data.settings.soundEnabled);
-    syncBackgroundMusic(data.settings.soundEnabled, false);
-    playSound(data.settings.soundEnabled, "ui-confirm");
-    setResult(null);
-    setTrackerMode(game.tracker);
-    setCountdown(5);
-    setCameraFlightRect(
-      rect && view === "instructions" && !shouldReduceMotion
-        ? {
-            left: rect.left,
-            top: rect.top,
-            width: rect.width,
-            height: rect.height,
-          }
-        : null,
-    );
-    setView("playing");
-  }, [data.settings.soundEnabled, game.tracker, shouldReduceMotion, view]);
-
   const startGameFromHub = useCallback(
     (id: GameId) => {
-      void prepareAudio(data.settings.soundEnabled);
-      setResult(null);
       openInstructions(id, "confirm");
     },
-    [data.settings.soundEnabled, openInstructions],
+    [openInstructions],
   );
 
   const finishGame = useCallback(
@@ -754,6 +747,23 @@ export default function App() {
         "--hub-title-width": `${hubTitleMetrics.width}px`,
       } as CSSProperties)
     : undefined;
+
+  useEffect(() => {
+    if (view !== "hub") return;
+    if (!handCarousel.targetId) {
+      if (!hoveredHubGame) lastHubPreviewSoundRef.current = null;
+      return;
+    }
+
+    if (lastHubPreviewSoundRef.current === handCarousel.targetId) return;
+    lastHubPreviewSoundRef.current = handCarousel.targetId;
+    playSound(data.settings.soundEnabled, "card-hover");
+  }, [
+    data.settings.soundEnabled,
+    handCarousel.targetId,
+    hoveredHubGame,
+    view,
+  ]);
 
   useLayoutEffect(() => {
     if (view !== "hub" || !hubFocusedGameId) {
@@ -882,6 +892,25 @@ export default function App() {
             large={view === "setup"}
             hidden={cameraFlying}
           />
+          {isCountdownActive && !cameraFlying ? (
+            <div
+              key={`camera-countdown-${countdown}`}
+              className="camera-countdown"
+              role="status"
+              aria-live="assertive"
+            >
+              <span className="camera-countdown__eyebrow">Get ready</span>
+              <strong
+                key={countdown}
+                className="camera-countdown__number t-digit-group is-animating"
+                aria-label={`${countdown}`}
+              >
+                <span className="t-digit" aria-hidden="true">
+                  {countdown}
+                </span>
+              </strong>
+            </div>
+          ) : null}
           {cameraFlightRect ? (
             <CameraFlightPreview
               stream={camera.stream!}
@@ -899,7 +928,7 @@ export default function App() {
           {trackingMessage}
         </div>
       ) : null}
-      {documentPaused && view === "playing" ? (
+      {documentPaused && (view === "playing" || isCountdownActive) ? (
         <div className="pause-overlay">
           <div>
             <strong>Game paused</strong>
@@ -1043,12 +1072,20 @@ export default function App() {
                 ))}
               </div>
             </div>
+            <div className="hub-navigation-hint" aria-label="How to navigate">
+              <span>How to navigate</span>
+              <strong>Pinch or use two fingers to scroll.</strong>
+              <strong>Open palm push to choose.</strong>
+            </div>
           </section>
         ) : null}
 
         {view === "instructions" ? (
           <section
-            className={`instructions-screen instructions-screen--${selectedGame}`}
+            className={`instructions-screen instructions-screen--${selectedGame} ${
+              isCountdownActive ? "instructions-screen--countdown" : ""
+            }`}
+            aria-busy={isCountdownActive}
           >
             <button
               className="back-button instructions-back"
@@ -1080,12 +1117,6 @@ export default function App() {
                   ))}
                 </fieldset>
               ) : null}
-              <button
-                className="primary-button primary-button--large"
-                onClick={startGame}
-              >
-                Start game <span aria-hidden="true">→</span>
-              </button>
             </div>
           </section>
         ) : null}
@@ -1095,22 +1126,7 @@ export default function App() {
             <button className="game-exit" onClick={returnToHub}>
               <BackIcon /> Leave game
             </button>
-            {countdown !== null ? (
-              <div className="countdown" role="status" aria-live="assertive">
-                <span className="countdown__eyebrow">Get ready</span>
-                <strong
-                  key={countdown}
-                  className="countdown__number t-digit-group is-animating"
-                  aria-label={`${countdown}`}
-                >
-                  <span className="t-digit" aria-hidden="true">
-                    {countdown}
-                  </span>
-                </strong>
-                <p className="countdown__copy">{game.instruction}</p>
-              </div>
-            ) : (
-              <>
+            <>
                 {selectedGame === "bubbles" ? (
                   <BubblesGame
                     tracking={tracking.latestFrame}
@@ -1174,8 +1190,7 @@ export default function App() {
                     onFinish={finishGame}
                   />
                 ) : null}
-              </>
-            )}
+            </>
           </section>
         ) : null}
 
@@ -1240,7 +1255,7 @@ export default function App() {
             >
               <button
                 className="primary-button"
-                onClick={() => setView("instructions")}
+                onClick={() => openInstructions(result.gameId, "confirm")}
               >
                 Play again
               </button>
