@@ -36,6 +36,9 @@ const GRAVITY = 0.95;
 const START_LIVES = 3;
 const BLADE_LIFETIME = 220;
 const SLICE_SPEED = 0.013;
+const TRACKER_DOT_FILL = "rgba(247, 246, 246, 0.92)";
+const TRACKER_DOT_RING = "rgba(216, 216, 216, 0.58)";
+const TRACKER_DOT_GLOW = "rgba(216, 216, 216, 0.45)";
 
 export function FruitSlicerGame({
   tracking,
@@ -285,13 +288,24 @@ export function FruitSlicerGame({
 
       const hand = tracking.current?.hand;
       if (hand) {
+        ctx.save();
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = TRACKER_DOT_GLOW;
         ctx.beginPath();
         ctx.arc(hand.index.x * width, hand.index.y * height, 9, 0, Math.PI * 2);
-        ctx.fillStyle = "oklch(0.205 0 0)";
+        ctx.fillStyle = TRACKER_DOT_RING;
         ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "oklch(1 0 0)";
-        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(
+          hand.index.x * width,
+          hand.index.y * height,
+          5.4,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = TRACKER_DOT_FILL;
+        ctx.fill();
+        ctx.restore();
       }
 
       ctx.fillStyle = "oklch(0.646 0.241 32.489)";

@@ -83,6 +83,9 @@ const PALETTE_COLORS = [
 const DEFAULT_COLOR = PALETTE_COLORS[0].color;
 const CLEAR_HOLD_MS = 700;
 const MIN_POINT_GAP = 0.005;
+const TRACKER_DOT_FILL = "rgba(247, 246, 246, 0.92)";
+const TRACKER_DOT_RING = "rgba(216, 216, 216, 0.58)";
+const TRACKER_DOT_GLOW = "rgba(216, 216, 216, 0.45)";
 
 function paletteCardLeft(index: number): string {
   const gap = 75 / Math.max(PALETTE_COLORS.length - 1, 1);
@@ -303,15 +306,25 @@ export function AirDrawingGame({
       }
 
       if (tip) {
+        const dotRadius = pinch ? 11 : 8;
+        ctx.save();
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = TRACKER_DOT_GLOW;
         ctx.beginPath();
-        ctx.arc(tip.x * width, tip.y * height, pinch ? 11 : 8, 0, Math.PI * 2);
-        ctx.fillStyle = pinch
-          ? selectedColorRef.current
-          : "oklch(0.205 0 0 / 0.35)";
+        ctx.arc(tip.x * width, tip.y * height, dotRadius, 0, Math.PI * 2);
+        ctx.fillStyle = TRACKER_DOT_RING;
         ctx.fill();
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = "oklch(1 0 0)";
-        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(
+          tip.x * width,
+          tip.y * height,
+          dotRadius * 0.58,
+          0,
+          Math.PI * 2,
+        );
+        ctx.fillStyle = TRACKER_DOT_FILL;
+        ctx.fill();
+        ctx.restore();
         ctx.lineWidth = 7;
       }
 

@@ -57,12 +57,18 @@ export function useVisionTracking(
   const modeRef = useRef(mode);
   const [quality, setQuality] = useState<TrackingQuality>("loading");
   const qualityRef = useRef<TrackingQuality>("loading");
+  const [ready, setReady] = useState(false);
+  const readyRef = useRef(false);
   const [fps, setFps] = useState(0);
   const [error, setError] = useState("");
   const fallbackCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const fpsCounter = useRef({ count: 0, started: performance.now() });
 
   useEffect(() => {
+    const setReadyState = (nextReady: boolean) => {
+      readyRef.current = nextReady;
+      setReady(nextReady);
+    };
     const visionWorker = new Worker(
       new URL("../lib/tracking/vision.worker.ts", import.meta.url),
       { type: "module" },
@@ -73,16 +79,25 @@ export function useVisionTracking(
       if (message.type === "error") {
         framePending.current = false;
         setError(message.message);
+        setReadyState(false);
         qualityRef.current = "error";
         setQuality("error");
         return;
       }
       if (message.type === "ready") {
         setError("");
+        if (message.mode === modeRef.current && message.mode !== "off") {
+          setReadyState(true);
+          if (qualityRef.current === "loading") {
+            qualityRef.current = "searching";
+            setQuality("searching");
+          }
+        }
         return;
       }
       framePending.current = false;
       latestFrame.current = message.frame;
+      if (!readyRef.current) setReadyState(true);
       if (qualityRef.current !== message.frame.quality) {
         qualityRef.current = message.frame.quality;
         setQuality(message.frame.quality);
@@ -109,7 +124,9 @@ export function useVisionTracking(
   useEffect(() => {
     modeRef.current = mode;
     latestFrame.current = null;
-    qualityRef.current = mode === "off" ? "loading" : "searching";
+    readyRef.current = false;
+    setReady(false);
+    qualityRef.current = "loading";
     setQuality(qualityRef.current);
     fpsCounter.current = { count: 0, started: performance.now() };
     setFps(0);
@@ -172,5 +189,5 @@ export function useVisionTracking(
     };
   }, [mode, stream, videoRef]);
 
-  return { latestFrame, quality, fps, error };
+  return { latestFrame, quality, ready, fps, error };
 }

@@ -50,6 +50,10 @@ const PLACE_RADIUS = 0.16;
 const MAGNET_RADIUS = 0.24;
 const MAGNET_PULL = 0.68;
 const SNAP_BACK_MS = 620;
+const TRACKER_DOT_FILL = "rgba(247, 246, 246, 0.92)";
+const TRACKER_DOT_RING = "rgba(216, 216, 216, 0.58)";
+const TRACKER_DOT_LINE = "rgba(216, 216, 216, 0.56)";
+const TRACKER_DOT_GLOW = "rgba(216, 216, 216, 0.45)";
 
 function makePieces(count: 4 | 6 | 8): Piece[] {
   return Array.from({ length: count }, (_, index) => {
@@ -275,29 +279,35 @@ export function PuzzleGame({
         const thumbY = hand.thumb.y * height;
         const indexX = hand.index.x * width;
         const indexY = hand.index.y * height;
+        context.save();
+        context.shadowBlur = 12;
+        context.shadowColor = TRACKER_DOT_GLOW;
         context.beginPath();
         context.moveTo(thumbX, thumbY);
         context.lineTo(indexX, indexY);
         context.strokeStyle = hand.pinch
-          ? "oklch(0.191 0 0 / 0.75)"
-          : "oklch(0.191 0 0 / 0.22)";
+          ? "rgba(216, 216, 216, 0.82)"
+          : TRACKER_DOT_LINE;
         context.lineWidth = hand.pinch ? 3 : 2;
         context.stroke();
         const dotRadius = hand.pinch ? 12 : 9;
         context.beginPath();
         context.arc(thumbX, thumbY, dotRadius, 0, Math.PI * 2);
-        context.fillStyle = "oklch(0.664 0.184 19.034)";
+        context.fillStyle = TRACKER_DOT_RING;
         context.fill();
-        context.lineWidth = 3;
-        context.strokeStyle = "oklch(1 0 0)";
-        context.stroke();
+        context.beginPath();
+        context.arc(thumbX, thumbY, dotRadius * 0.58, 0, Math.PI * 2);
+        context.fillStyle = TRACKER_DOT_FILL;
+        context.fill();
         context.beginPath();
         context.arc(indexX, indexY, dotRadius, 0, Math.PI * 2);
-        context.fillStyle = "oklch(0.205 0 0)";
+        context.fillStyle = TRACKER_DOT_RING;
         context.fill();
-        context.lineWidth = 3;
-        context.strokeStyle = "oklch(1 0 0)";
-        context.stroke();
+        context.beginPath();
+        context.arc(indexX, indexY, dotRadius * 0.58, 0, Math.PI * 2);
+        context.fillStyle = TRACKER_DOT_FILL;
+        context.fill();
+        context.restore();
       }
     };
 

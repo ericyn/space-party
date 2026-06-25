@@ -2776,6 +2776,60 @@ p {
     text-wrap: balance;
 }
 
+.setup-action p {
+    max-width: 460px;
+    margin: -8px 0 0;
+    color: oklch(0.45 0 0);
+    font-size: clamp(21px, 2vw, 28px);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.18;
+    letter-spacing: 0;
+    text-wrap: pretty;
+}
+
+.setup-loader {
+    position: relative;
+    width: 96px;
+    height: 96px;
+    display: grid;
+    place-items: center;
+    color: var(--pink-main);
+}
+
+.setup-loader::before,
+.setup-loader::after {
+    content: "";
+}
+
+.setup-loader::before,
+.setup-loader::after,
+.setup-loader span {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.setup-loader::before {
+    inset: 4px;
+    border: 8px solid currentColor;
+    opacity: 0.16;
+}
+
+.setup-loader::after {
+    inset: 4px;
+    border: 8px solid transparent;
+    border-top-color: currentColor;
+    animation: setup-loader-spin 900ms linear infinite;
+}
+
+.setup-loader span {
+    width: 18px;
+    height: 18px;
+    background: currentColor;
+    box-shadow:
+        0 0 0 12px oklch(0.705 0.319 328.327 / 0.08),
+        0 10px 24px oklch(0.705 0.319 328.327 / 0.2);
+}
+
 .setup-action--hand .setup-action__icon svg {
     transform-origin: 42% 86%;
     animation: setup-hand-wave 1200ms ease-in-out infinite;
@@ -2826,6 +2880,12 @@ p {
     }
 }
 
+@keyframes setup-loader-spin {
+    to {
+        transform: rotate(1turn);
+    }
+}
+
 @keyframes setup-icon-breathe {
     0%,
     100% {
@@ -2834,6 +2894,61 @@ p {
     50% {
         transform: scale(1.035);
     }
+}
+
+.setup-camera-status {
+    position: fixed;
+    z-index: 42;
+    top: 50%;
+    left: calc(50% - 8px);
+    width: min(34vw, 420px);
+    height: min(34vw, 420px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 14px;
+    overflow: hidden;
+    border-radius: 50%;
+    color: oklch(1 0 0);
+    text-align: center;
+    pointer-events: none;
+    translate: 0 -50%;
+    isolation: isolate;
+}
+
+.setup-camera-status::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            oklch(0.205 0 0 / 0.2),
+            oklch(0.205 0 0 / 0.54)
+        ),
+        oklch(0.205 0 0 / 0.18);
+    backdrop-filter: blur(1.5px);
+}
+
+.setup-camera-status span {
+    width: 54px;
+    height: 54px;
+    border: 5px solid oklch(1 0 0 / 0.22);
+    border-top-color: oklch(1 0 0);
+    border-radius: 50%;
+    animation: setup-loader-spin 900ms linear infinite;
+}
+
+.setup-camera-status strong {
+    max-width: 180px;
+    color: oklch(1 0 0 / 0.88);
+    font-size: 12px;
+    font-weight: 780;
+    letter-spacing: 0.12em;
+    line-height: 1.25;
+    text-transform: uppercase;
 }
 
 .camera-preview--hidden {
@@ -3101,7 +3216,9 @@ p {
 }
 
 .reduce-motion .setup-action__icon,
-.reduce-motion .setup-action__icon svg {
+.reduce-motion .setup-action__icon svg,
+.reduce-motion .setup-loader::after,
+.reduce-motion .setup-camera-status span {
     animation: none;
 }
 
@@ -3893,19 +4010,52 @@ p {
 .hand-cursor {
     position: fixed;
     z-index: 90;
-    width: 18px;
-    height: 18px;
-    margin: -9px 0 0 -9px;
-    border: 2px solid var(--switch-pink);
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 0;
     border-radius: 50%;
-    background: oklch(1 0 0 / 0.78);
+    background: rgb(216 216 216 / 0.52);
+    box-shadow:
+        0 0 0 5px rgb(216 216 216 / 0.16),
+        0 8px 22px rgb(0 0 0 / 0.08);
+    opacity: 1;
+    backdrop-filter: blur(6px);
+    filter: blur(0.15px);
     pointer-events: none;
     transform: translate3d(0, 0, 0);
+    transition:
+        width 120ms ease-out,
+        height 120ms ease-out,
+        margin 120ms ease-out,
+        opacity 120ms ease-out,
+        box-shadow 120ms ease-out,
+        background-color 120ms ease-out,
+        border-color 120ms ease-out;
+}
+
+.hand-cursor::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: rgb(247 246 246 / 0.94);
+    box-shadow:
+        inset 0 0 0 1px rgb(255 255 255 / 0.52),
+        0 2px 6px rgb(0 0 0 / 0.04);
 }
 
 .hand-cursor--dragging {
-    width: 24px;
-    height: 24px;
-    margin: -12px 0 0 -12px;
-    background: var(--switch-pink-soft);
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    background: rgb(216 216 216 / 0.58);
+    box-shadow:
+        0 0 0 7px rgb(216 216 216 / 0.2),
+        0 10px 26px rgb(0 0 0 / 0.1);
+    opacity: 1;
+}
+
+.hand-cursor--dragging::after {
+    inset: 8px;
 }

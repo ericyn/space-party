@@ -38,6 +38,9 @@ interface Props {
 }
 
 const DURATION = 45_000;
+const TRACKER_DOT_FILL = "rgba(247, 246, 246, 0.92)";
+const TRACKER_DOT_RING = "rgba(216, 216, 216, 0.58)";
+const TRACKER_DOT_GLOW = "rgba(216, 216, 216, 0.45)";
 
 function bubblePointers(frame: TrackingFrame | null): BubblePointer[] {
   if (!frame) return [];
@@ -238,13 +241,18 @@ export function BubblesGame({
         const x = pointer.point.x * width;
         const y = pointer.point.y * height;
         const pulse = pointer.tap ? 1.25 + pointer.tapStrength * 0.45 : 1;
+        overlay.save();
+        overlay.shadowBlur = 12;
+        overlay.shadowColor = TRACKER_DOT_GLOW;
         overlay.beginPath();
         overlay.arc(x, y, 8 * pulse, 0, Math.PI * 2);
-        overlay.fillStyle = "oklch(0.205 0 0)";
+        overlay.fillStyle = TRACKER_DOT_RING;
         overlay.fill();
-        overlay.lineWidth = 3;
-        overlay.strokeStyle = "oklch(1 0 0)";
-        overlay.stroke();
+        overlay.beginPath();
+        overlay.arc(x, y, 4.8 * pulse, 0, Math.PI * 2);
+        overlay.fillStyle = TRACKER_DOT_FILL;
+        overlay.fill();
+        overlay.restore();
       }
     };
 

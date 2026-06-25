@@ -286,8 +286,9 @@ function getDigitStagger(index: number, total: number) {
 type WelcomeStep = "start" | "camera";
 
 type SetupStage = {
-  id: "hand" | "face" | "expression" | "complete";
+  id: "loading" | "hand" | "face" | "expression" | "complete";
   title: string;
+  body?: string;
 };
 
 type HubTitleMetrics = {
@@ -296,7 +297,18 @@ type HubTitleMetrics = {
   width: number;
 };
 
-function getSetupStage(step: string, progress: number): SetupStage {
+function getSetupStage(
+  step: string,
+  progress: number,
+  trackingReady: boolean,
+): SetupStage {
+  if (!trackingReady) {
+    return {
+      id: "loading",
+      title: "Preparing tracking.",
+      body: "Loading hand and face tracking. Everything runs on-device.",
+    };
+  }
   if (step === "complete") return { id: "complete", title: "You are ready." };
   if (step === "face" && progress > 0.25) {
     return { id: "expression", title: "Smile or wink." };
@@ -306,6 +318,14 @@ function getSetupStage(step: string, progress: number): SetupStage {
 }
 
 function SetupActionIcon({ stage }: { stage: SetupStage["id"] }) {
+  if (stage === "loading") {
+    return (
+      <span className="setup-loader" aria-hidden="true">
+        <span />
+      </span>
+    );
+  }
+
   if (stage === "hand") {
     return (
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -736,7 +756,13 @@ export default function App() {
   });
   const hubFocusedGameId = handCarousel.targetId ?? hoveredHubGame;
   const hubFocusedGame = hubFocusedGameId ? getGame(hubFocusedGameId) : null;
-  const setupStage = getSetupStage(calibration.step, calibration.progress);
+  const setupTrackingLoading =
+    view === "setup" && (!tracking.ready || tracking.quality === "loading");
+  const setupStage = getSetupStage(
+    calibration.step,
+    calibration.progress,
+    !setupTrackingLoading,
+  );
   const setupMotion = shouldReduceMotion
     ? { duration: 0 }
     : { type: "spring" as const, duration: 0.3, bounce: 0 };
@@ -892,6 +918,12 @@ export default function App() {
             large={view === "setup"}
             hidden={cameraFlying}
           />
+          {setupTrackingLoading && !cameraFlying ? (
+            <div className="setup-camera-status" aria-hidden="true">
+              <span aria-hidden="true" />
+              <strong>Preparing tracking</strong>
+            </div>
+          ) : null}
           {isCountdownActive && !cameraFlying ? (
             <div
               key={`camera-countdown-${countdown}`}
@@ -1022,6 +1054,7 @@ export default function App() {
                     <SetupActionIcon stage={setupStage.id} />
                   </span>
                   <h1>{setupStage.title}</h1>
+                  {setupStage.body ? <p>{setupStage.body}</p> : null}
                 </motion.div>
               </AnimatePresence>
             </div>
