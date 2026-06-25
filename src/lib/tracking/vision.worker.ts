@@ -208,6 +208,7 @@ function readTrackedHand(
   const pointer = mirrorPoint(toPoint(landmarks[8]));
   const thumb = mirrorPoint(toPoint(landmarks[4]));
   const middle = mirrorPoint(toPoint(landmarks[12]));
+  const pinky = mirrorPoint(toPoint(landmarks[20]));
   state.smoothedPointer = smoothPoint(state.smoothedPointer, pointer);
   state.smoothedThumb = smoothPoint(state.smoothedThumb, thumb, 0.45);
   state.smoothedMiddle = smoothPoint(state.smoothedMiddle, middle, 0.5);
@@ -284,7 +285,10 @@ function readTrackedHand(
     sample: {
       point: palm,
       wrist,
+      thumb: state.smoothedThumb,
       index: state.smoothedPointer,
+      middle: state.smoothedMiddle,
+      pinky,
       tap: tapSignal.tap,
       tapStrength: tapSignal.strength,
       handedness,

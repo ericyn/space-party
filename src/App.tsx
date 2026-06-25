@@ -746,6 +746,7 @@ export default function App() {
     view !== "setup" &&
     view !== "instructions" &&
     view !== "playing";
+  const showInlineGameCamera = view === "playing" && selectedGame === "sixseven";
   const showCamera = Boolean(camera.stream) && showShell;
   const trackingMessage = tracking.error || camera.error;
   const handCarousel = useHubHandCarousel({
@@ -919,7 +920,7 @@ export default function App() {
             videoRef={camera.videoRef}
             stream={camera.stream!}
             large={view === "setup"}
-            hidden={cameraFlying}
+            hidden={cameraFlying || showInlineGameCamera}
           />
           {isCountdownActive && !cameraFlying ? (
             <div
@@ -1213,6 +1214,7 @@ export default function App() {
                 ) : null}
                 {selectedGame === "sixseven" ? (
                   <SixSevenGame
+                    stream={camera.stream}
                     tracking={tracking.latestFrame}
                     paused={documentPaused}
                     soundEnabled={data.settings.soundEnabled}

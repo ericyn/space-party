@@ -72,12 +72,12 @@ export const GAMES: GameModule[] = [
   },
   {
     id: "sixseven",
-    title: "Doing the 6 7",
-    shortTitle: "6 7",
+    title: "67",
+    shortTitle: "67",
     description:
       "Move both arms in opposite directions: one up, one down, then swap as fast as you can.",
     instruction:
-      "Show both arms. Keep one arm up and the other down, then alternate up and down. Each clean 6 or 7 pose scores a point.",
+      "Keep both hands in view. Move one hand high and the other low, then swap fast. Each clean switch scores a point.",
     tracker: "hand",
     durationLabel: "20 second sprint",
     accent: "oklch(0.407 0.126 253.267)",

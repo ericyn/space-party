@@ -52,7 +52,10 @@ export interface FaceTracking {
 export interface HandSample {
   point: Point;
   wrist: Point;
+  thumb: Point;
   index: Point;
+  middle: Point;
+  pinky: Point;
   tap: boolean;
   tapStrength: number;
   handedness: string | null;
