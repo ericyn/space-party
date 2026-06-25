@@ -19,7 +19,6 @@ import {
   CameraIcon,
   FruitIcon,
   HandIcon,
-  MouthIcon,
   PenIcon,
   PuzzleIcon,
   SeesawIcon,
@@ -30,7 +29,6 @@ import { BubblesGame } from "./games/BubblesGame";
 import { PuzzleGame } from "./games/PuzzleGame";
 import { SimonGame } from "./games/SimonGame";
 import { FruitSlicerGame } from "./games/FruitSlicerGame";
-import { MouthFlapGame } from "./games/MouthFlapGame";
 import { AirDrawingGame } from "./games/AirDrawingGame";
 import { SixSevenGame } from "./games/SixSevenGame";
 import { useCamera } from "./hooks/useCamera";
@@ -374,7 +372,6 @@ function GameGlyph({ id }: { id: GameId }) {
   if (id === "bubbles") return <BubbleIcon />;
   if (id === "puzzle") return <PuzzleIcon />;
   if (id === "fruit") return <FruitIcon />;
-  if (id === "flap") return <MouthIcon />;
   if (id === "draw") return <PenIcon />;
   if (id === "sixseven") return <SeesawIcon />;
   return <HandIcon />;
@@ -402,7 +399,6 @@ function InstructionGestureIcon({ id }: { id: GameId }) {
     );
   }
 
-  if (id === "flap") return <MouthIcon />;
   if (id === "sixseven") return <SeesawIcon />;
 
   return (
@@ -1096,9 +1092,15 @@ export default function App() {
                     onPointerLeave={() => clearHubGamePreview(item.id)}
                     disabled={cameraFlying}
                   >
-                    <span className="game-card__icon">
-                      <GameGlyph id={item.id} />
-                    </span>
+                    {item.coverImage ? (
+                      <span className="game-card__cover" aria-hidden="true">
+                        <img src={item.coverImage} alt="" loading="eager" />
+                      </span>
+                    ) : (
+                      <span className="game-card__icon" aria-hidden="true">
+                        <GameGlyph id={item.id} />
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -1188,15 +1190,6 @@ export default function App() {
                 ) : null}
                 {selectedGame === "fruit" ? (
                   <FruitSlicerGame
-                    tracking={tracking.latestFrame}
-                    paused={documentPaused}
-                    soundEnabled={data.settings.soundEnabled}
-                    reducedMotion={data.settings.reducedMotion}
-                    onFinish={finishGame}
-                  />
-                ) : null}
-                {selectedGame === "flap" ? (
-                  <MouthFlapGame
                     tracking={tracking.latestFrame}
                     paused={documentPaused}
                     soundEnabled={data.settings.soundEnabled}

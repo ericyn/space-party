@@ -102,6 +102,7 @@ export interface GameModule {
   tracker: TrackerMode;
   durationLabel: string;
   accent: string;
+  coverImage?: string;
 }
 
 export type VisionWorkerInMessage =

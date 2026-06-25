@@ -13,9 +13,13 @@ type SimonTarget =
   | "Closed_Fist"
   | "Victory"
   | "Thumb_Up"
+  | "Thumb_Down"
+  | "Pointing_Up"
+  | "twoHands"
+  | "handHigh"
+  | "handLow"
   | "smile"
-  | "jawOpen"
-  | "browRaise";
+  | "jawOpen";
 
 interface SimonPrompt {
   detector: Exclude<TrackerMode, "off">;
@@ -58,18 +62,42 @@ const GESTURES: Omit<SimonPrompt, "simon">[] = [
     label: "Give a thumbs up",
     emoji: "👍",
   },
+  {
+    detector: "hand",
+    target: "Thumb_Down",
+    label: "Give a thumbs down",
+    emoji: "👎",
+  },
+  {
+    detector: "hand",
+    target: "Pointing_Up",
+    label: "Point one finger up",
+    emoji: "☝️",
+  },
+  {
+    detector: "hand",
+    target: "twoHands",
+    label: "Show both hands",
+    emoji: "🙌",
+  },
+  {
+    detector: "hand",
+    target: "handHigh",
+    label: "Hold a hand up high",
+    emoji: "⬆️",
+  },
+  {
+    detector: "hand",
+    target: "handLow",
+    label: "Hold a hand down low",
+    emoji: "⬇️",
+  },
   { detector: "face", target: "smile", label: "Show a big smile", emoji: "😊" },
   {
     detector: "face",
     target: "jawOpen",
     label: "Open your mouth",
     emoji: "😮",
-  },
-  {
-    detector: "face",
-    target: "browRaise",
-    label: "Raise your eyebrows",
-    emoji: "🤨",
   },
 ];
 
@@ -95,9 +123,15 @@ function faceMatches(
     return face.smile > 0.48 && face.smile - neutral.smile > 0.18;
   if (target === "jawOpen")
     return face.jawOpen > 0.48 && face.jawOpen - neutral.jawOpen > 0.2;
-  if (target === "browRaise")
-    return face.browRaise > 0.38 && face.browRaise - neutral.browRaise > 0.13;
   return false;
+}
+
+function handMatches(target: SimonTarget, frame: TrackingFrame | null): boolean {
+  if (frame?.mode !== "hand" || !frame.hand) return false;
+  if (target === "twoHands") return frame.hands.length >= 2;
+  if (target === "handHigh") return frame.hand.pointer.y < 0.34;
+  if (target === "handLow") return frame.hand.pointer.y > 0.66;
+  return frame.hand.gesture === target && frame.hand.gestureScore >= 0.58;
 }
 
 export function SimonGame({
@@ -185,7 +219,7 @@ export function SimonGame({
         setLives(livesValue);
         setPhase("miss");
         setMessage(
-          current.simon ? "Try the gesture next time" : "Simon did not say!",
+          current.simon ? "Try the action next time" : "Simon did not say!",
         );
         currentPhase = "miss";
         playSound(soundRef.current, "miss");
@@ -249,10 +283,7 @@ export function SimonGame({
 
       let matches = false;
       if (current.detector === "hand") {
-        matches =
-          frame?.mode === "hand" &&
-          frame.hand?.gesture === current.target &&
-          frame.hand.gestureScore >= 0.58;
+        matches = handMatches(current.target, frame ?? null);
       } else if (frame?.mode === "face" && frame.face) {
         matches = faceMatches(current.target, frame.face, neutral);
       }
@@ -302,17 +333,16 @@ export function SimonGame({
             ? `Simon says: ${prompt.label.toLowerCase()}`
             : prompt.label}
         </h2>
-        <p>{prompt.detector === "hand" ? "Hand gesture" : "Face gesture"}</p>
+        <p>{prompt.detector === "hand" ? "Hand action" : "Face action"}</p>
         <div
           className="hold-meter"
-          aria-label={`Gesture hold progress ${Math.round(holdProgress * 100)} percent`}
+          aria-label={`Action hold progress ${Math.round(holdProgress * 100)} percent`}
         >
           <span style={{ transform: `scaleX(${holdProgress})` }} />
         </div>
       </div>
       <p className="simon-help">
-        Hold the gesture until the meter fills. If Simon did not say, stay
-        neutral.
+        Hold the action until the meter fills. If Simon did not say, stay neutral.
       </p>
     </div>
   );

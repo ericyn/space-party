@@ -12,6 +12,7 @@ export const GAMES: GameModule[] = [
     tracker: "hand",
     durationLabel: "45 second round",
     accent: "oklch(0.8 0.133 220.221)",
+    coverImage: "/media/pop-bubble.png",
   },
   {
     id: "puzzle",
@@ -24,17 +25,19 @@ export const GAMES: GameModule[] = [
     tracker: "hand",
     durationLabel: "4, 6, or 8 pieces",
     accent: "oklch(0.82 0.171 78.466)",
+    coverImage: "/media/pinch-puzzle.png",
   },
   {
     id: "simon",
     title: "Simon Says",
     shortTitle: "Simon Says",
-    description: "Follow hand and face prompts—but only when Simon says.",
+    description: "Follow hand and face actions—but only when Simon says.",
     instruction:
-      "Wait for a prompt, then hold the matching gesture until the ring fills.",
+      "Wait for a prompt, then hold the matching action until the ring fills.",
     tracker: "hand",
     durationLabel: "12 quick prompts",
     accent: "oklch(0.547 0.095 188.18)",
+    coverImage: "/media/simon-says.png",
   },
   {
     id: "fruit",
@@ -47,17 +50,7 @@ export const GAMES: GameModule[] = [
     tracker: "hand",
     durationLabel: "60 second round",
     accent: "oklch(0.646 0.241 32.489)",
-  },
-  {
-    id: "flap",
-    title: "Mouth Flap",
-    shortTitle: "Flap",
-    description: "Open your mouth to fly up and glide through the gaps.",
-    instruction:
-      "Open your mouth to flap upward and close it to drift down. Fly through the gates.",
-    tracker: "face",
-    durationLabel: "Survive the gates",
-    accent: "oklch(0.636 0.2 253.539)",
+    coverImage: "/media/fruit-slicer.png",
   },
   {
     id: "draw",
@@ -69,6 +62,7 @@ export const GAMES: GameModule[] = [
     tracker: "hand",
     durationLabel: "Free draw canvas",
     accent: "oklch(0.8 0.133 220.221)",
+    coverImage: "/media/air-drawing.png",
   },
   {
     id: "sixseven",
@@ -81,6 +75,7 @@ export const GAMES: GameModule[] = [
     tracker: "hand",
     durationLabel: "20 second sprint",
     accent: "oklch(0.407 0.126 253.267)",
+    coverImage: "/media/ohne-pixel-67.gif",
   },
 ];
 

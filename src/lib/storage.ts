@@ -5,7 +5,6 @@ const GAME_IDS: readonly GameId[] = [
   "puzzle",
   "simon",
   "fruit",
-  "flap",
   "draw",
   "sixseven",
 ];
