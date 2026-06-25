@@ -305,8 +305,8 @@ function getSetupStage(
   if (!trackingReady) {
     return {
       id: "loading",
-      title: "Preparing tracking.",
-      body: "Loading hand and face tracking. Everything runs on-device.",
+      title: "Downloading models.",
+      body: "Getting everything ready. Everything runs on-device.",
     };
   }
   if (step === "complete") return { id: "complete", title: "You are ready." };
@@ -757,7 +757,9 @@ export default function App() {
   const hubFocusedGameId = handCarousel.targetId ?? hoveredHubGame;
   const hubFocusedGame = hubFocusedGameId ? getGame(hubFocusedGameId) : null;
   const setupTrackingLoading =
-    view === "setup" && (!tracking.ready || tracking.quality === "loading");
+    view === "setup" &&
+    calibration.step === "hand" &&
+    (!tracking.ready || tracking.quality === "loading");
   const setupStage = getSetupStage(
     calibration.step,
     calibration.progress,
@@ -921,7 +923,7 @@ export default function App() {
           {setupTrackingLoading && !cameraFlying ? (
             <div className="setup-camera-status" aria-hidden="true">
               <span aria-hidden="true" />
-              <strong>Preparing tracking</strong>
+              <strong>Downloading models</strong>
             </div>
           ) : null}
           {isCountdownActive && !cameraFlying ? (

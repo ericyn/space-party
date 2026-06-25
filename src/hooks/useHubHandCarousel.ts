@@ -34,6 +34,7 @@ const SCROLL_SMOOTHING = 0.34;
 const TAP_COOLDOWN_MS = 650;
 const DRAG_TAP_LOCKOUT_MS = 260;
 const PALM_CONFIRM_SCORE = 0.58;
+const PALM_TARGET_GRACE_MS = 520;
 
 function midpoint(a: Point, b: Point): Point {
   return {
@@ -54,6 +55,7 @@ export function useHubHandCarousel({
   const lastPalmPushRef = useRef(false);
   const lastSelectAtRef = useRef(0);
   const lastDragEndAtRef = useRef(0);
+  const lastStableTargetRef = useRef<{ id: GameId; at: number } | null>(null);
   const scrollTargetRef = useRef<number | null>(null);
   const lastPublishedRef = useRef<HubHandCarouselState>(EMPTY_STATE);
 
@@ -61,6 +63,7 @@ export function useHubHandCarousel({
     if (!active) {
       dragRef.current = null;
       lastPalmPushRef.current = false;
+      lastStableTargetRef.current = null;
       scrollTargetRef.current = null;
       lastPublishedRef.current = EMPTY_STATE;
       setState(EMPTY_STATE);
@@ -88,6 +91,7 @@ export function useHubHandCarousel({
     const reset = () => {
       dragRef.current = null;
       lastPalmPushRef.current = false;
+      lastStableTargetRef.current = null;
       scrollTargetRef.current = null;
       publish(EMPTY_STATE);
     };
@@ -153,6 +157,7 @@ export function useHubHandCarousel({
             ? scrollTarget
             : easedScroll;
         publish({ point, targetId: null, dragging: true });
+        lastStableTargetRef.current = null;
         lastPalmPushRef.current = false;
         if (!cancelled) animationFrame = requestAnimationFrame(tick);
         return;
@@ -193,12 +198,29 @@ export function useHubHandCarousel({
       const tapBlocked =
         now - lastSelectAtRef.current < TAP_COOLDOWN_MS ||
         now - lastDragEndAtRef.current < DRAG_TAP_LOCKOUT_MS;
+      const stableTarget = lastStableTargetRef.current;
+      const latchedTargetId =
+        stableTarget && now - stableTarget.at <= PALM_TARGET_GRACE_MS
+          ? stableTarget.id
+          : null;
+      const displayTargetId = palmPush ? (latchedTargetId ?? targetId) : targetId;
 
-      publish({ point, targetId, dragging: false });
+      publish({ point, targetId: displayTargetId, dragging: false });
 
-      if (palmPush && !lastPalmPushRef.current && targetId && !tapBlocked) {
+      if (!palmPush) {
+        lastStableTargetRef.current = targetId
+          ? { id: targetId, at: now }
+          : null;
+      }
+
+      if (
+        palmPush &&
+        !lastPalmPushRef.current &&
+        displayTargetId &&
+        !tapBlocked
+      ) {
         lastSelectAtRef.current = now;
-        onSelect(targetId);
+        onSelect(displayTargetId);
         return;
       }
 
