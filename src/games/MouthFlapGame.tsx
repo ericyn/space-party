@@ -150,7 +150,7 @@ export function MouthFlapGame({
       ctx.globalAlpha = blinking ? 0.4 : 1;
       ctx.beginPath();
       ctx.arc(bx, by, radius, 0, Math.PI * 2);
-      ctx.fillStyle = "oklch(0.817 0.14 80.096)";
+      ctx.fillStyle = "oklch(0.82 0.171 78.466)";
       ctx.fill();
       ctx.lineWidth = 3;
       ctx.strokeStyle = "oklch(0.205 0 0)";

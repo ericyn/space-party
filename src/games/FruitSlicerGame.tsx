@@ -294,7 +294,7 @@ export function FruitSlicerGame({
         ctx.stroke();
       }
 
-      ctx.fillStyle = "oklch(0.705 0.319 328.327)";
+      ctx.fillStyle = "oklch(0.646 0.241 32.489)";
       ctx.font = "600 22px system-ui";
       ctx.textAlign = "right";
       ctx.fillText(

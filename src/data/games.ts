@@ -11,7 +11,7 @@ export const GAMES: GameModule[] = [
       "Point an index finger at a bubble and make a quick tapping motion toward the camera. Use either hand, or both hands at once.",
     tracker: "hand",
     durationLabel: "45 second round",
-    accent: "oklch(0.705 0.319 328.327)",
+    accent: "oklch(0.8 0.133 220.221)",
   },
   {
     id: "puzzle",
@@ -23,7 +23,7 @@ export const GAMES: GameModule[] = [
       "Bring your thumb and index finger together to grab. Open them to release.",
     tracker: "hand",
     durationLabel: "4, 6, or 8 pieces",
-    accent: "oklch(0.601 0.069 185.413)",
+    accent: "oklch(0.82 0.171 78.466)",
   },
   {
     id: "simon",
@@ -34,7 +34,7 @@ export const GAMES: GameModule[] = [
       "Wait for a prompt, then hold the matching gesture until the ring fills.",
     tracker: "hand",
     durationLabel: "12 quick prompts",
-    accent: "oklch(0.579 0.077 266.32)",
+    accent: "oklch(0.547 0.095 188.18)",
   },
   {
     id: "fruit",
@@ -46,7 +46,7 @@ export const GAMES: GameModule[] = [
       "Move your hand quickly through the fruit to slice it. Avoid the dark bombs.",
     tracker: "hand",
     durationLabel: "60 second round",
-    accent: "oklch(0.663 0.139 31.396)",
+    accent: "oklch(0.646 0.241 32.489)",
   },
   {
     id: "flap",
@@ -57,7 +57,7 @@ export const GAMES: GameModule[] = [
       "Open your mouth to flap upward and close it to drift down. Fly through the gates.",
     tracker: "face",
     durationLabel: "Survive the gates",
-    accent: "oklch(0.768 0.126 76.252)",
+    accent: "oklch(0.636 0.2 253.539)",
   },
   {
     id: "draw",
@@ -68,7 +68,7 @@ export const GAMES: GameModule[] = [
       "Pinch your thumb and index finger to draw. Open your hand to lift the pen. Hover or tap a color card to change color.",
     tracker: "hand",
     durationLabel: "Free draw canvas",
-    accent: "oklch(0.746 0.263 328.069)",
+    accent: "oklch(0.8 0.133 220.221)",
   },
   {
     id: "sixseven",
@@ -80,7 +80,7 @@ export const GAMES: GameModule[] = [
       "Show both arms. Keep one arm up and the other down, then alternate up and down. Each clean 6 or 7 pose scores a point.",
     tracker: "hand",
     durationLabel: "20 second sprint",
-    accent: "oklch(0.639 0.133 252.308)",
+    accent: "oklch(0.407 0.126 253.267)",
   },
 ];
 
