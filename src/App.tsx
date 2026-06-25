@@ -320,9 +320,10 @@ function getSetupStage(
 function SetupActionIcon({ stage }: { stage: SetupStage["id"] }) {
   if (stage === "loading") {
     return (
-      <span className="setup-loader" aria-hidden="true">
-        <span />
-      </span>
+      <svg className="setup-loader" viewBox="0 0 96 96" aria-hidden="true">
+        <circle className="setup-loader__track" cx="48" cy="48" r="38" />
+        <circle className="setup-loader__bar" cx="48" cy="48" r="38" />
+      </svg>
     );
   }
 
@@ -920,12 +921,6 @@ export default function App() {
             large={view === "setup"}
             hidden={cameraFlying}
           />
-          {setupTrackingLoading && !cameraFlying ? (
-            <div className="setup-camera-status" aria-hidden="true">
-              <span aria-hidden="true" />
-              <strong>Downloading models</strong>
-            </div>
-          ) : null}
           {isCountdownActive && !cameraFlying ? (
             <div
               key={`camera-countdown-${countdown}`}

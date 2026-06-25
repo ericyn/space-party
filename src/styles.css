@@ -2788,46 +2788,30 @@ p {
 }
 
 .setup-loader {
-    position: relative;
     width: 96px;
     height: 96px;
-    display: grid;
-    place-items: center;
+    display: block;
     color: var(--pink-main);
+    overflow: visible;
 }
 
-.setup-loader::before,
-.setup-loader::after {
-    content: "";
+.setup-loader__track,
+.setup-loader__bar {
+    fill: none;
+    stroke-width: 10;
+    transform-origin: 50% 50%;
 }
 
-.setup-loader::before,
-.setup-loader::after,
-.setup-loader span {
-    position: absolute;
-    border-radius: 50%;
+.setup-loader__track {
+    stroke: oklch(0.705 0.319 328.327 / 0.16);
 }
 
-.setup-loader::before {
-    inset: 4px;
-    border: 8px solid currentColor;
-    opacity: 0.16;
-}
-
-.setup-loader::after {
-    inset: 4px;
-    border: 8px solid transparent;
-    border-top-color: currentColor;
+.setup-loader__bar {
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-dasharray: 78 240;
+    transform: rotate(-90deg);
     animation: setup-loader-spin 900ms linear infinite;
-}
-
-.setup-loader span {
-    width: 18px;
-    height: 18px;
-    background: currentColor;
-    box-shadow:
-        0 0 0 12px oklch(0.705 0.319 328.327 / 0.08),
-        0 10px 24px oklch(0.705 0.319 328.327 / 0.2);
 }
 
 .setup-action--hand .setup-action__icon svg {
@@ -2894,61 +2878,6 @@ p {
     50% {
         transform: scale(1.035);
     }
-}
-
-.setup-camera-status {
-    position: fixed;
-    z-index: 42;
-    top: 50%;
-    left: calc(50% - 8px);
-    width: min(34vw, 420px);
-    height: min(34vw, 420px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 14px;
-    overflow: hidden;
-    border-radius: 50%;
-    color: oklch(1 0 0);
-    text-align: center;
-    pointer-events: none;
-    translate: 0 -50%;
-    isolation: isolate;
-}
-
-.setup-camera-status::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background:
-        radial-gradient(
-            circle at 50% 42%,
-            oklch(0.205 0 0 / 0.2),
-            oklch(0.205 0 0 / 0.54)
-        ),
-        oklch(0.205 0 0 / 0.18);
-    backdrop-filter: blur(1.5px);
-}
-
-.setup-camera-status span {
-    width: 54px;
-    height: 54px;
-    border: 5px solid oklch(1 0 0 / 0.22);
-    border-top-color: oklch(1 0 0);
-    border-radius: 50%;
-    animation: setup-loader-spin 900ms linear infinite;
-}
-
-.setup-camera-status strong {
-    max-width: 180px;
-    color: oklch(1 0 0 / 0.88);
-    font-size: 12px;
-    font-weight: 780;
-    letter-spacing: 0.12em;
-    line-height: 1.25;
-    text-transform: uppercase;
 }
 
 .camera-preview--hidden {
@@ -3217,8 +3146,7 @@ p {
 
 .reduce-motion .setup-action__icon,
 .reduce-motion .setup-action__icon svg,
-.reduce-motion .setup-loader::after,
-.reduce-motion .setup-camera-status span {
+.reduce-motion .setup-loader__bar {
     animation: none;
 }
 
